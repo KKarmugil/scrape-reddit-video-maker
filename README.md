@@ -17,10 +17,12 @@ https://github.com/reddit-archive/reddit/wiki/OAuth2
 
 When first time running script it will ask client Id, client secret, user agent and it stores all info to a config file next time running script will not ask any details right now subreddit is default to r/askreddit 
 
-Enter number of Posts
+Enter number of Posts:-
+
 ![alt text](https://i.imgur.com/YmWkdaf.png)
 
-Render video and out to a folder called result
+Render video and out to a folder called result:-
+
 ![alt text](https://i.imgur.com/9vF3e69.png)
 
 
