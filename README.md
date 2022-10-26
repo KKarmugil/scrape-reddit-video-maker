@@ -15,6 +15,8 @@ It only works with subreddits that are questions and answers type daily top post
 To get this three check out this link
 https://github.com/reddit-archive/reddit/wiki/OAuth2
 
+Install requirements all required module
+
 When first time running script it will ask client Id, client secret, user agent and it stores all info to a config file next time running script will not ask any details right now subreddit is default to r/askreddit 
 
 Enter number of Posts:-
