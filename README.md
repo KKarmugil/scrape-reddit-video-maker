@@ -4,7 +4,7 @@
 
 Install modules specified in requirements.txt
 
-##YOU Need 
+## YOU Need Before Runnning Main.py
 
 1 Client ID
 
@@ -15,7 +15,11 @@ Install modules specified in requirements.txt
 To get this three check out this link
 https://github.com/reddit-archive/reddit/wiki/OAuth2
 
-Creates videos by scraping information from Reddit and convert to video files
+After all above complited
+
+run manin.py
+
+It creates videos by scraping information from Reddit and convert to video files
  
 It only works with subreddits that are questions and answers type daily top post scrapes the title and top five comments from posts to create a video.
 
