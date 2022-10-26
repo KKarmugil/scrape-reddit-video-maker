@@ -1,6 +1,6 @@
 # Scrapes reddit and create videos
 
-![alt text](http://clipart-library.com/images_k/reddit-transparent/reddit-transparent-8.png)
+![alt text](https://i.imgur.com/U3YNAn6b.jpg)
 
 ## Installation
 
