@@ -20,3 +20,7 @@ When first time running script it will ask client Id, client secret, user agent 
 Enter number of Posts
 ![alt text](https://i.imgur.com/YmWkdaf.png)
 
+Render video and out to a folder called result
+![alt text](https://i.imgur.com/9vF3e69.png)
+
+
