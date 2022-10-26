@@ -1,5 +1,7 @@
 # Scrapes reddit and create videos
 
+![alt text](http://clipart-library.com/images_k/reddit-transparent/reddit-transparent-8.png)
+
 ## Installation
 
 Install modules specified in requirements.txt
