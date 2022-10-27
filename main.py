@@ -190,7 +190,8 @@ def color_clip(size, duration, fps=25, color=(0, 0, 0)):
     global clip
     clip = ColorClip(size, color, duration=duration)
 
-
+# Video render
+    
 def videoz():
     global clip
     audioTime = librosa.get_duration(filename="temp\\"+'name.mp3')
