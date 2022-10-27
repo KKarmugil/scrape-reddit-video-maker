@@ -9,14 +9,8 @@ import re
 import os
 from tqdm import tqdm ,trange
 subredditTep = "AskReddit"
-csvRead = ""
-clip = ""
-addw = 8
 commentname = {}
-numberOfPost = ""
-audiocon = 0
 cliptime = {}
-texttemp=""
 path = (os.path.dirname(os.path.abspath(__file__)))
 path=path.capitalize()
 path=(path.replace('\\', '\\\\'))
@@ -42,12 +36,15 @@ try:
     user = readredditinfo["client_id"]
     password = readredditinfo["client_secret"]
     host = readredditinfo["user_agent"]
+    subredditTep= readredditinfo["subreddit"]
 except:
     # Add the structure to the file we will create
     config.add_section('redditinfo')
     config.set('redditinfo', 'client_id', input("Enter client_id : "))
     config.set('redditinfo', 'client_secret', input("Enter client_secret : "))
     config.set('redditinfo', 'user_agent', input("Enter user_agent : "))
+    config.set('redditinfo', 'subreddit', input("Enter subreddit E.g AskReddit, askscience.. : "))
+
 
     with open("configfile.ini", 'w') as configfile:
         config.write(configfile)
@@ -57,6 +54,7 @@ except:
     user = readredditinfo["client_id"]
     password = readredditinfo["client_secret"]
     host = readredditinfo["user_agent"]
+    subredditTep= readredditinfo["subreddit"]
 
 
 # Gets Info From reddit and Store in Csv File
@@ -98,6 +96,7 @@ def readfile(row, column):
 
 
 def audiocon(name):
+    global csvRead
     mytext = csvRead
     language = 'en'
     myobj = gTTS(text=mytext, lang=language, slow=False)
@@ -105,6 +104,7 @@ def audiocon(name):
 
 
 def audiocon1():
+    global csvRead
     mytext = csvRead
     language = 'en'
     myobj = gTTS(text=mytext, lang=language, slow=False)
@@ -172,6 +172,7 @@ def subanswer(i):
 
 
 def question():
+    global csvRead
     mary = csvRead
     file1 = open("temp\\"+"myfile.txt", "w")
     file1.writelines(mary)
@@ -179,18 +180,20 @@ def question():
 
 
 def answer():
+    global csvRead
     mary = csvRead
     file1 = open("temp\\"+"myfile.txt", "a")  # append mode
     file1.writelines(mary)
     file1.close()
 
 
-def color_clip(size, duration, fps=25, color=(0, 0, 0)):
+def color_clip(size, duration, color=(0, 0, 0)):
     global clip
     clip = ColorClip(size, color, duration=duration)
 
 
 def videoz():
+    global clip
     audioTime = librosa.get_duration(filename="temp\\"+'name.mp3')
     with open("temp\\"+"a0.txt") as f:
         text0 = f.read()
@@ -227,13 +230,15 @@ def videoz():
     except:
         print(outputname+"Error")
 
+def main():
+    redditpull()
+    global numberOfPost
+    for i in range(0,numberOfPost):
+        try:
+            allaudio(i)
+        except:
+            print("ERROR "+str(i))
 
-redditpull()
-for i in range(0,numberOfPost):
-    try:
-        allaudio(i)
-    except:
-        print("ERROR "+str(i))
-
+main()
 
 
