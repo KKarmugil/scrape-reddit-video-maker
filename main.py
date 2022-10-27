@@ -8,7 +8,6 @@ import librosa
 import re
 import os
 from tqdm import tqdm ,trange
-subredditTep = "AskReddit"
 commentname = {}
 cliptime = {}
 path = (os.path.dirname(os.path.abspath(__file__)))
@@ -187,7 +186,7 @@ def answer():
     file1.close()
 
 
-def color_clip(size, duration, color=(0, 0, 0)):
+def color_clip(size, duration, fps=25, color=(0, 0, 0)):
     global clip
     clip = ColorClip(size, color, duration=duration)
 
