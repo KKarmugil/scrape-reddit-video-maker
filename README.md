@@ -25,7 +25,7 @@ It creates videos by scraping information from Reddit and convert to video files
  
 It only works with subreddits that are questions and answers type daily top post scrapes the title and top five comments from posts to create a video.
 
-When first time running script it will ask client Id, client secret, user agent and it stores all info to a config file next time running script will not ask any details right now subreddit is default to r/askreddit to change subreddit edit main.py
+When first time running script it will ask client Id, client secret, user agent, subreddit and it stores all info to a config file next time running script will not ask any details
 
 Enter number of Posts:-
 
