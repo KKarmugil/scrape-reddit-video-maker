@@ -19,7 +19,7 @@ https://github.com/reddit-archive/reddit/wiki/OAuth2
 
 After all above complited
 
-run manin.py
+run main.py
 
 It creates videos by scraping information from Reddit and convert to video files
  
