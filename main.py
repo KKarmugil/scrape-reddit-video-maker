@@ -8,7 +8,7 @@ import librosa
 import re
 import os
 from tqdm import tqdm ,trange
-subredditTep = "AskReddit"
+subredditTep = input("Exp AskReddit, explainlikeimfive ")
 csvRead = ""
 clip = ""
 addw = 8
@@ -177,6 +177,19 @@ def question():
     file1.writelines(mary)
     file1.close()
 
+def joinwords(s):
+    str1 = ""
+ 
+    for ele in s:
+        str1 += ele+" "
+ 
+    return str1
+ 
+def setTowords(s):
+
+    countOfWords = s.split()
+    print("Count of Words in the given Sentence:", countOfWords)
+    return countOfWords
 
 def answer():
     mary = csvRead
@@ -218,6 +231,7 @@ def videoz():
         ((cliptime[2],cliptime[3]), text3),
         ((cliptime[3],cliptime[4]), text4),
         ((cliptime[4],cliptime[5]), text5)]
+    print(subs)
     subtitles = SubtitlesClip(subs, generator)
     video = CompositeVideoClip(
         [clip,txt0_clip, subtitles.set_pos(('center'))])
