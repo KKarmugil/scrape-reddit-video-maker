@@ -185,11 +185,20 @@ def joinwords(s):
  
     return str1
  
-def setTowords(s):
-
-    countOfWords = s.split()
+def textsplit(income):
+    tempstore=income
+    tem1=0
+    tem2=50
+    countOfWords = a.split()
+    print(len(countOfWords))
     print("Count of Words in the given Sentence:", countOfWords)
-    return countOfWords
+    cal=int(len(countOfWords)/50)
+    cal=cal+1
+    for i in range(cal):
+        tempstore[i]=countOfWords[tem1:tem2]
+        tem1=tem1+50
+        tem2=tem2+50
+    return(tempstore)
 
 def answer():
     mary = csvRead
