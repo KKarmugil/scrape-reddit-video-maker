@@ -22,6 +22,7 @@ path=path.capitalize()
 path=(path.replace('\\', '\\\\'))
 path=(path+"\\\\")
 print (path)
+a=""
 try:
     os.mkdir(path+"temp")
 except:
@@ -249,6 +250,38 @@ def videoz():
                             ".mp4", fps=25, audio='temp\\'+"name.mp3")
     except:
         print(outputname+"Error")
+
+def textsplit():
+    tempstore={}
+    tem1=0
+    tem2=50
+    countOfWords = a.split()
+    print(len(countOfWords))
+    print("Count of Words in the given Sentence:", countOfWords)
+    cal=int(len(countOfWords)/50)
+    cal=cal+1
+    for i in range(cal):
+        tempstore[i]=countOfWords[tem1:tem2]
+        tem1=tem1+50
+        tem2=tem2+50
+    return(tempstore)
+
+def listToString(s):
+    str1 = ""
+    for ele in s:
+        str1 += ele+" "
+ 
+    return str1
+
+def textdived():
+    bang={}
+    lens=0
+    mm=textsplit()
+    for i in mm:
+        bang[lens]=listToString(mm[i])
+        lens=lens+1
+
+    print(bang)
 
 
 redditpull()
