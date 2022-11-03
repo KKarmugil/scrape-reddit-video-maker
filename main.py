@@ -8,7 +8,9 @@ import librosa
 import re
 import os
 from tqdm import tqdm ,trange
-subredditTep = input("Exp AskReddit, explainlikeimfive ")
+#subredditTep = input("Exp AskReddit, explainlikeimfive ")
+kim=0
+subredditTep = "AskReddit"
 csvRead = ""
 clip = ""
 addw = 8
@@ -16,13 +18,16 @@ commentname = {}
 numberOfPost = ""
 audiocon = 0
 cliptime = {}
+addedline={}
 texttemp=""
+endtext={}
+audioTime=0
 path = (os.path.dirname(os.path.abspath(__file__)))
 path=path.capitalize()
 path=(path.replace('\\', '\\\\'))
 path=(path+"\\\\")
 print (path)
-a=""
+rawtext={}
 try:
     os.mkdir(path+"temp")
 except:
@@ -60,9 +65,8 @@ except:
     host = readredditinfo["user_agent"]
 
 
-# Gets Info From reddit and Store in Csv File
-
 def redditpull():
+    subredditTep=input("Exp AskReddit, explainlikeimfive ")
     global numberOfPost
     numberOfPost = int(input("Enter Number Of Posts :"))
     reddit = praw.Reddit(client_id=user,
@@ -73,7 +77,7 @@ def redditpull():
     posts = []
     ml_subreddit = reddit.subreddit(subredditTep)
     with tqdm(total=int(numberOfPost*5)) as pbar:
-        for post in ml_subreddit.top("day", limit=numberOfPost):
+        for post in ml_subreddit.top("year", limit=numberOfPost):
             for i in range(5):
                 comment_id = post.comments[i].id
                 comment = reddit.comment(comment_id)
@@ -95,167 +99,11 @@ def readfile(row, column):
     df = pd.read_csv(r'temp\file3.csv')
     return df.loc[row][column]
 
-# Text To Audio
-
-
-def audiocon(name):
-    mytext = csvRead
-    language = 'en'
-    myobj = gTTS(text=mytext, lang=language, slow=False)
-    myobj.save(name+".mp3")
-
-
-def audiocon1():
-    mytext = csvRead
-    language = 'en'
-    myobj = gTTS(text=mytext, lang=language, slow=False)
-    myobj.save(r"temp\name"+".mp3")
-
-
-def allaudio(row, col=1):
-    global csvRead
-    global audiocon
-    global outputname
-    for i in trange(6):
-        if col == 1:
-            combain = 'temp\\'+str(row)+"_"+str(col)
-            csvRead = readfile(row, col)
-            outputname=re.sub('[[,:,?,\',/,\]]', '', csvRead)
-            question()
-            audiocon(combain)
-            audioTime = librosa.get_duration(filename=combain+'.mp3')
-            cliptime[i] = audioTime
-            order(i)
-            col = col+7
-        elif col <= 12:
-            col = col+1
-            combain = 'temp\\'+str(row)+"_"+str(col)
-            csvRead = readfile(row, col)
-            answer()
-            audiocon(combain)
-            temp = librosa.get_duration(filename=combain+'.mp3')
-            audioTime = audioTime+temp
-            cliptime[i] = audioTime
-            order(i)
-        else:
-            break
-    with open('temp\\'+"myfile.txt") as f:
-        csvRead = f.read()
-    audiocon1()
-    videoz()
-
-def order(arr):
-    global texttemp
-    mary = csvRead
-    mk=[]
-    kk=0
-    ma=mary.split() 
-    mx=len(ma)
-    while True:
-        if mx%4 == 0:
-            break
-        else:
-            ma.append(" ")
-            mx=len(ma)
-    cals=int(mx/4)
-    for i in range(cals):
-        z=ma[kk]+" "+ma[kk+1]+" "+ma[kk+2] +" "+ma[kk+3] +"\n"
-        kk=kk+4
-        mk.append(z)
-    texttemp=mk
-    subanswer(arr)
-
-def subanswer(i):
-    global texttemp
-    file1 = open("temp\\"+"a"+str(i)+".txt", "w")
-    file1.writelines(texttemp)
-    file1.close()
-
-
-def question():
-    mary = csvRead
-    file1 = open("temp\\"+"myfile.txt", "w")
-    file1.writelines(mary)
-    file1.close()
-
-def joinwords(s):
-    str1 = ""
- 
-    for ele in s:
-        str1 += ele+" "
- 
-    return str1
- 
-def textsplit(income):
-    tempstore=income
-    tem1=0
-    tem2=50
-    countOfWords = a.split()
-    print(len(countOfWords))
-    print("Count of Words in the given Sentence:", countOfWords)
-    cal=int(len(countOfWords)/50)
-    cal=cal+1
-    for i in range(cal):
-        tempstore[i]=countOfWords[tem1:tem2]
-        tem1=tem1+50
-        tem2=tem2+50
-    return(tempstore)
-
-def answer():
-    mary = csvRead
-    file1 = open("temp\\"+"myfile.txt", "a")  # append mode
-    file1.writelines(mary)
-    file1.close()
-
-
-def color_clip(size, duration, fps=25, color=(0, 0, 0)):
-    global clip
-    clip = ColorClip(size, color, duration=duration)
-
-
-def videoz():
-    audioTime = librosa.get_duration(filename="temp\\"+'name.mp3')
-    with open("temp\\"+"a0.txt") as f:
-        text0 = f.read()
-    with open("temp\\"+"a1.txt") as f:
-        text1 = f.read()
-    with open("temp\\"+"a2.txt") as f:
-        text2 = f.read()
-    with open("temp\\"+"a3.txt") as f:
-        text3 = f.read()
-    with open("temp\\"+"a4.txt") as f:
-        text4 = f.read()
-    with open("temp\\"+"a5.txt") as f:
-        text5 = f.read()
-    size = (1080, 1920)
-    duration = audioTime
-    color_clip(size, duration)
-    global subredditTep
-    jip = "r/"+subredditTep
-    txt0_clip = TextClip(jip, fontsize=40, color='white')
-    txt0_clip = txt0_clip.set_pos((0.1, 0.1), relative=True).set_duration(duration)
-    generator = lambda txt: TextClip(txt, font='Arial', fontsize=40, color='white')
-    subs = [((0, cliptime[0]), text0),
-        ((cliptime[0],cliptime[1]), text1),
-        ((cliptime[1],cliptime[2]), text2),
-        ((cliptime[2],cliptime[3]), text3),
-        ((cliptime[3],cliptime[4]), text4),
-        ((cliptime[4],cliptime[5]), text5)]
-    print(subs)
-    subtitles = SubtitlesClip(subs, generator)
-    video = CompositeVideoClip(
-        [clip,txt0_clip, subtitles.set_pos(('center'))])
-    try:
-        video.write_videofile("result\\"+str(outputname)+
-                            ".mp4", fps=25, audio='temp\\'+"name.mp3")
-    except:
-        print(outputname+"Error")
-
-def textsplit():
+def textsplit(text):
     tempstore={}
     tem1=0
     tem2=50
-    countOfWords = a.split()
+    countOfWords = text.split()
     print(len(countOfWords))
     print("Count of Words in the given Sentence:", countOfWords)
     cal=int(len(countOfWords)/50)
@@ -273,23 +121,137 @@ def listToString(s):
  
     return str1
 
-def textdived():
-    bang={}
-    lens=0
-    mm=textsplit()
+def textdived(text):
+    text=re.sub("ELI5: ", "", text)
+    text=re.sub('[?,:,!]', "", text)
+    global outputname,rawtext
+    lens=0+len(rawtext)
+    mm=textsplit(text)
+    
     for i in mm:
-        bang[lens]=listToString(mm[i])
+        rawtext[lens]=listToString(mm[i])
         lens=lens+1
+    outputname=re.sub('[?,\',/,$,ELI5:,!]', '', rawtext[0])
+    outputname=re.sub("ELI5: ", '', outputname)
+    # outputname=re.sub("ELI5: ", "", outputname)
+    # outputname =re.sub("!", "", outputname)
 
-    print(bang)
+def audioconveter(text,i):
+    mytext = text
+    language = 'en'
+    myobj = gTTS(text=mytext, lang=language, slow=False)
+    myobj.save("temp\\name"+str(i)+".mp3")
 
+def order(text,kgf):
+    global mk
+    mary = text
+    mk=[]
+    kk=0
+    ma=mary.split() 
+    mx=len(ma)
+    while True:
+        if mx%4 == 0:
+            break
+        else:
+            ma.append(" ")
+            mx=len(ma)
+    cals=int(mx/4)
+    for i in range(cals):
+        z=ma[kk]+" "+ma[kk+1]+" "+ma[kk+2] +" "+ma[kk+3] +"\n"
+        kk=kk+4
+        mk.append(z)
+    addedline[kgf]=mk
+    print(addedline)
+    subanswer(kgf)
+
+def subanswer(i):
+    global texttemp
+    file1 = open("temp\\"+"a"+str(i)+".txt", "w")
+    file1.writelines(addedline[i])
+    file1.close()
+
+def color_clip(size, duration, fps=25, color=(0, 0, 0)):
+    global clip
+    clip = ColorClip(size, color, duration=duration)
+
+def audiotime():
+    for i in cliptime:
+        audiotime=audiotime+cliptime[i]
+    print(audiotime)
+
+
+
+def videoz():
+    global cliptime,rawtext,kim,mk,texttemp,addedline
+    for i in range(len(cliptime)-1):
+        m=i+1
+        cliptime[m]=cliptime[i]+cliptime[m]
+        print(cliptime[i])
+    audioTime=cliptime[len(cliptime)-1]
+    print(audioTime)
+    for i in range(len(addedline)):
+        with open("temp\\"+"a"+str(i)+".txt") as f:
+         endtext[i] = f.read()
+    
+    print(endtext)
+    size = (1080, 1920)
+    duration = audioTime
+    color_clip(size, duration)
+    global subredditTep
+    jip = "r/"+subredditTep
+    txt0_clip = TextClip(jip, fontsize=40, color='white')
+    txt0_clip = txt0_clip.set_pos((0.1, 0.1), relative=True).set_duration(duration)
+    generator = lambda txt: TextClip(txt, font='Arial', fontsize=40, color='white')
+    subs = [((0, cliptime[0]), endtext[0])]
+    print(addedline)
+    for i in range(int(len(addedline)-1)):
+        m=i+1
+        print(i)
+        subs.append(((cliptime[i],cliptime[m]), endtext[m]))
+        print(subs)
+    print("pass")
+    print(subs)
+    subtitles = SubtitlesClip(subs, generator)
+    video = CompositeVideoClip(
+        [clip,txt0_clip, subtitles.set_pos(('center'))])
+    cam=[]
+    for i in range(len(addedline)):
+        cam.append(AudioFileClip('temp\\'+"name"+str(i)+".mp3"))
+    print(cam)
+    rawtext={}
+    mk={}
+    texttemp={}
+    cliptime = {}
+    addedline={}
+    fin=concatenate_audioclips(cam)
+    fin.write_audiofile("ouut.mp3")
+    
+    print(rawtext)
+    print(mk)
+    try:
+        video.write_videofile("result\\"+str(outputname)+
+                            ".mp4", fps=25, audio="ouut.mp3")
+    except:
+        print(outputname+"Error")
+    kim=kim+1
+    
 
 redditpull()
-for i in range(0,numberOfPost):
-    try:
-        allaudio(i)
-    except:
-        print("ERROR "+str(i))
+
+for j in range(numberOfPost):
+    j=j+15
+    textdived(readfile(j, 1))
+    textdived(readfile(j, 9))
+    textdived(readfile(j, 10))
+    textdived(readfile(j, 11))
+    textdived(readfile(j, 12))
+    textdived(readfile(j, 13))
 
 
-
+    print(rawtext)
+    for i in rawtext:
+        audioconveter(rawtext[i],i)
+        order(rawtext[i],i)
+        ten = librosa.get_duration(filename="temp\\name"+str(i)+".mp3")
+        cliptime[i] = ten
+    videoz()
