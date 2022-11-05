@@ -9,9 +9,10 @@ import re
 import os
 from tqdm import tqdm ,trange
 import pyttsx3 
+import logging
 #subredditTep = input("Exp AskReddit, explainlikeimfive ")
 kim=0
-subredditTep = "AskReddit"
+subredditTep = "explainlikeimfive"
 csvRead = ""
 clip = ""
 addw = 8
@@ -23,11 +24,17 @@ addedline={}
 texttemp=""
 endtext={}
 audioTime=0
+logging.basicConfig(filename="newfile.log",
+                    format='%(asctime)s %(message)s',
+                    filemode='w')
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
 path = (os.path.dirname(os.path.abspath(__file__)))
 path=path.capitalize()
 path=(path.replace('\\', '\\\\'))
 path=(path+"\\\\")
-print (path)
+#print (path)
 rawtext={}
 try:
     os.mkdir(path+"temp")
@@ -105,8 +112,8 @@ def textsplit(text):
     tem1=0
     tem2=50
     countOfWords = text.split()
-    print(len(countOfWords))
-    print("Count of Words in the given Sentence:", countOfWords)
+    #print(len(countOfWords))
+    #print("Count of Words in the given Sentence:", countOfWords)
     cal=int(len(countOfWords)/50)
     cal=cal+1
     for i in trange(cal):
@@ -139,12 +146,14 @@ def textdived(text):
 
 def audioconveter(text,i):
     mytext = text
-    # language = 'en'
-    # myobj = gTTS(text=mytext, lang=language, slow=False)
-    # myobj.save("temp\\name"+str(i)+".mp3")
-    engine = pyttsx3.init('sapi5')
-    engine.save_to_file(mytext , "temp\\name"+str(i)+".mp3")
-    engine.runAndWait()
+    
+    language = 'en'
+    myobj = gTTS(text=mytext, lang=language, slow=False)
+    myobj.save("temp\\name"+str(i)+".mp3")
+    # except:
+    #     engine = pyttsx3.init('sapi5')
+    #     engine.save_to_file(mytext , "temp\\name"+str(i)+".mp3")
+    #     engine.runAndWait()
 
 def order(text,kgf):
     global mk
@@ -165,7 +174,7 @@ def order(text,kgf):
         kk=kk+4
         mk.append(z)
     addedline[kgf]=mk
-    print(addedline)
+    #print(addedline)
     subanswer(kgf)
 
 def subanswer(i):
@@ -181,7 +190,7 @@ def color_clip(size, duration, fps=25, color=(0, 0, 0)):
 def audiotime():
     for i in cliptime:
         audiotime=audiotime+cliptime[i]
-    print(audiotime)
+    #print(audiotime)
 
 
 
@@ -190,39 +199,38 @@ def videoz():
     for i in trange(len(cliptime)-1):
         m=i+1
         cliptime[m]=cliptime[i]+cliptime[m]
-        print(cliptime[i])
+        #print(cliptime[i])
     audioTime=cliptime[len(cliptime)-1]
-    print(audioTime)
+    #print(audioTime)
     for i in trange(len(addedline)):
         with open("temp\\"+"a"+str(i)+".txt") as f:
          endtext[i] = f.read()
     
-    print(endtext)
+    #print(endtext)
     size = (1080, 1920)
     duration = audioTime
     color_clip(size, duration)
     global subredditTep
-    # jip = "r/"+subredditTep
-    jip = ""
+    jip = "r/"+subredditTep
     txt0_clip = TextClip(jip, fontsize=40, color='white')
     txt0_clip = txt0_clip.set_pos((0.1, 0.1), relative=True).set_duration(duration)
     generator = lambda txt: TextClip(txt, font='Arial', fontsize=40, color='white')
     subs = [((0, cliptime[0]), endtext[0])]
-    print(addedline)
+    #print(addedline)
     for i in trange(int(len(addedline)-1)):
         m=i+1
-        print(i)
+        #print(i)
         subs.append(((cliptime[i],cliptime[m]), endtext[m]))
-        print(subs)
-    print("pass")
-    print(subs)
+        #print(subs)
+    #print("pass")
+    #print(subs)
     subtitles = SubtitlesClip(subs, generator)
     video = CompositeVideoClip(
         [clip,txt0_clip, subtitles.set_pos(('center'))])
     cam=[]
     for i in trange(len(addedline)):
         cam.append(AudioFileClip('temp\\'+"name"+str(i)+".mp3"))
-    print(cam)
+    #print(cam)
     rawtext={}
     mk={}
     texttemp={}
@@ -231,8 +239,8 @@ def videoz():
     fin=concatenate_audioclips(cam)
     fin.write_audiofile("ouut.mp3")
     
-    print(rawtext)
-    print(mk)
+    #print(rawtext)
+    #print(mk)
     try:
         video.write_videofile("result\\"+str(outputname)+
                             ".mp4",threads=4, fps=25, audio="ouut.mp3")
@@ -243,15 +251,17 @@ def videoz():
 
 redditpull()
 
-for j in trange(numberOfPost):
+for j in trange(20):
     textdived(readfile(j, 1))
     textdived(readfile(j, 9))
 
-
-    print(rawtext)
     for i in rawtext:
         audioconveter(rawtext[i],i)
         order(rawtext[i],i)
         ten = librosa.get_duration(filename="temp\\name"+str(i)+".mp3")
         cliptime[i] = ten
     videoz()
+    print("__SUCCESS"+str(j))
+    logger.error("done "+str(j))
+
+
