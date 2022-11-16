@@ -8,11 +8,15 @@ import librosa
 import re
 import os
 from tqdm import tqdm ,trange
-import pyttsx3 
 import logging
+import webbrowser
+import pyautogui
+import glob
 #subredditTep = input("Exp AskReddit, explainlikeimfive ")
 kim=0
-subredditTep = "explainlikeimfive"
+a=0
+c=0
+subredditTep = "AskReddit"
 csvRead = ""
 clip = ""
 addw = 8
@@ -74,6 +78,7 @@ except:
 
 
 def redditpull():
+    global subredditTep
     subredditTep=input("Exp AskReddit, explainlikeimfive ")
     global numberOfPost
     numberOfPost = int(input("Enter Number Of Posts :"))
@@ -86,7 +91,7 @@ def redditpull():
     ml_subreddit = reddit.subreddit(subredditTep)
     with tqdm(total=int(numberOfPost*5)) as pbar:
         for post in ml_subreddit.top("day", limit=numberOfPost):
-            for i in trange(5):
+            for i in range(5):
                 comment_id = post.comments[i].id
                 comment = reddit.comment(comment_id)
                 commentname[i] = comment.author
@@ -131,7 +136,7 @@ def listToString(s):
 
 def textdived(text):
     text=re.sub("ELI5: ", "", text)
-    text=re.sub('[?,:,!]', "", text)
+    text=re.sub("[?,:,!,']", "", text)
     global outputname,rawtext
     lens=0+len(rawtext)
     mm=textsplit(text)
@@ -139,8 +144,11 @@ def textdived(text):
     for i in mm:
         rawtext[lens]=listToString(mm[i])
         lens=lens+1
-    outputname=re.sub('[?,\',/,$,ELI5:,!]', '', rawtext[0])
+    outputname=re.sub("[?,',/,$,ELI5:,!]", '', rawtext[0])
     outputname=re.sub("ELI5: ", '', outputname)
+    outputname=str(outputname)
+    outputname=(outputname.replace("’", ' '))
+    outputname=(outputname.replace("“", ' '))
     # outputname=re.sub("ELI5: ", "", outputname)
     # outputname =re.sub("!", "", outputname)
 
@@ -248,20 +256,89 @@ def videoz():
         print(outputname+"Error")
     kim=kim+1
     
+def uploadfile():
+    global c
+    global a
 
+    # Get the list of all files and directories
+    path = r"C:\Users\Administrator\Desktop\1PyVideoCreateBot\result"
+    dir_list = os.listdir(path)
+    
+    print("Files and directories in '", path, "' :")
+    
+    # prints all files
+    print(dir_list)
+
+
+    path = (os.path.dirname(os.path.abspath(__file__)))
+    path=path.capitalize()
+    path=(path.replace('\\', '\\\\'))
+    path=(path+"\\\\")
+    print (path)
+    c=0
+    def kar(img):
+                a=0
+                addval=((path)+str(img))
+                while a<1:
+                    try:
+                        x,y = pyautogui.locateCenterOnScreen(addval,confidence=0.8,grayscale=True)
+                        pyautogui.click(x,y)
+                        #print(x,y)
+                        a=30
+                    except:
+                            #print("**image name** |"+str(img)+ "| **No of Try** |" +str(a)+"|")
+                            a=a+1
+                    else:
+                        a=a+1
+                        #print ("succes "+str(img))
+                        return str(img)
+
+    file = glob.glob("*.PNG")
+    numberinc=0
+
+
+    webbrowser.open('https://studio.youtube.com/')
+
+    while True:
+            for i in file:
+                value=kar(i)
+                if value=="fiel.PNG":
+                    locs="C:\\Users\\Administrator\\Desktop\\1PyVideoCreateBot\\result"+("\\")+str(dir_list[numberinc])
+                    print(locs)
+                    pyautogui.write(locs)
+                    numberinc=numberinc+1
+                elif len(dir_list)==numberinc:
+                    if value =="4.PNG":
+                        break
+                    
+            pyautogui.scroll(-100)
+def vidaudcon():
+    global mk,rawtext,texttemp,cliptime,addedline,cam,posts
+    for j in trange(20):
+        try:
+            textdived(readfile(j, 1))
+            textdived(readfile(j, 9))
+            textdived(readfile(j, 10))
+            textdived(readfile(j, 11))
+            textdived(readfile(j, 12))
+
+            for i in rawtext:
+                audioconveter(rawtext[i],i)
+                order(rawtext[i],i)
+                ten = librosa.get_duration(filename="temp\\name"+str(i)+".mp3")
+                cliptime[i] = ten
+            videoz()
+            print("__SUCCESS"+str(j))
+            logger.error("done "+str(j))
+        except:
+            print("err")
+            rawtext={}
+            mk={}
+            texttemp={}
+            cliptime = {}
+            addedline={}
+            cam=[]
+            posts = []
 redditpull()
-
-for j in trange(20):
-    textdived(readfile(j, 1))
-    textdived(readfile(j, 9))
-
-    for i in rawtext:
-        audioconveter(rawtext[i],i)
-        order(rawtext[i],i)
-        ten = librosa.get_duration(filename="temp\\name"+str(i)+".mp3")
-        cliptime[i] = ten
-    videoz()
-    print("__SUCCESS"+str(j))
-    logger.error("done "+str(j))
-
-
+vidaudcon()
+uploadfile()
