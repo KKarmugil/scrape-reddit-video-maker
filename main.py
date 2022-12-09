@@ -1,56 +1,19 @@
-from moviepy.editor import *
-from moviepy.video.tools.subtitles import SubtitlesClip
-import configparser
 import praw
-import pandas as pd
+import json
+from moviepy.editor import *
+import time
+import textwrap
 from gtts import gTTS
 import librosa
 import re
+import random
 import os
-from tqdm import tqdm ,trange
-import logging
-import webbrowser
-import pyautogui
-import glob
-#subredditTep = input("Exp AskReddit, explainlikeimfive ")
-kim=0
-a=0
-c=0
-subredditTep = "AskReddit"
-csvRead = ""
-clip = ""
-addw = 8
-commentname = {}
-numberOfPost = ""
-audiocon = 0
-cliptime = {}
-addedline={}
-texttemp=""
-endtext={}
-audioTime=0
-logging.basicConfig(filename="newfile.log",
-                    format='%(asctime)s %(message)s',
-                    filemode='w')
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-
-path = (os.path.dirname(os.path.abspath(__file__)))
-path=path.capitalize()
-path=(path.replace('\\', '\\\\'))
-path=(path+"\\\\")
-#print (path)
-rawtext={}
-try:
-    os.mkdir(path+"temp")
-except:
-    print("already created")
-try:
-    os.mkdir(path+"result")
-except:
-    print("already created")
+import configparser
 
 
-# Creates Config File
+txt_clip = []
+endtime = 0
+audioclipname = []
 
 config = configparser.ConfigParser()
 
@@ -76,269 +39,177 @@ except:
     password = readredditinfo["client_secret"]
     host = readredditinfo["user_agent"]
 
-
-def redditpull():
-    global subredditTep
-    subredditTep=input("Exp AskReddit, explainlikeimfive ")
-    global numberOfPost
-    numberOfPost = int(input("Enter Number Of Posts :"))
-    reddit = praw.Reddit(client_id=user,
-                         # your client id
-                         client_secret=password,
-                         # your client secret
-                         user_agent=host)
-    posts = []
-    ml_subreddit = reddit.subreddit(subredditTep)
-    with tqdm(total=int(numberOfPost*5)) as pbar:
-        for post in ml_subreddit.top("day", limit=numberOfPost):
-            for i in range(5):
-                comment_id = post.comments[i].id
-                comment = reddit.comment(comment_id)
-                commentname[i] = comment.author
-                pbar.update(1)
-            posts.append([post.title, post.score, post.id, post.subreddit, post.url, post.num_comments, post.selftext, post.created, post.comments[0].body, post.comments[1].body,
-                         post.comments[2].body, post.comments[3].body, post.comments[4].body, commentname[0], commentname[1], commentname[2], commentname[3], commentname[4]])
-    posts = pd.DataFrame(posts, columns=['title', 'score', 'id', 'subreddit', 'url', 'num_comments', 'body',
-                         'created', 'top_comment', 'two', 'three', 'four', 'five', 'id1', 'id2', 'id3', 'id4', 'id5'])
-    try:
-        posts.to_csv(r'temp\file3.csv')
-    except:
-        print("Close the Csv file and then run again")
-
-# Read Csv File
+# Format text in 50px
+def videoprep(input, starts, ends, position):
+    global txt_clip
+    input = textwrap.fill(input, width=45)
+    txt_clip.append(TextClip(input, fontsize=40, font="Malgun-Gothic-Bold",
+                    color='white').set_pos(position).set_start(starts).set_end(ends))
 
 
-def readfile(row, column):
-    df = pd.read_csv(r'temp\file3.csv')
-    return df.loc[row][column]
-
-def textsplit(text):
-    tempstore={}
-    tem1=0
-    tem2=50
-    countOfWords = text.split()
-    #print(len(countOfWords))
-    #print("Count of Words in the given Sentence:", countOfWords)
-    cal=int(len(countOfWords)/50)
-    cal=cal+1
-    for i in trange(cal):
-        tempstore[i]=countOfWords[tem1:tem2]
-        tem1=tem1+50
-        tem2=tem2+50
-    return(tempstore)
-
-def listToString(s):
-    str1 = ""
-    for ele in s:
-        str1 += ele+" "
- 
-    return str1
-
-def textdived(text):
-    text=re.sub("ELI5: ", "", text)
-    text=re.sub("[?,:,!,']", "", text)
-    global outputname,rawtext
-    lens=0+len(rawtext)
-    mm=textsplit(text)
-    
-    for i in mm:
-        rawtext[lens]=listToString(mm[i])
-        lens=lens+1
-    outputname=re.sub("[?,',/,$,ELI5:,!]", '', rawtext[0])
-    outputname=re.sub("ELI5: ", '', outputname)
-    outputname=str(outputname)
-    outputname=(outputname.replace("’", ' '))
-    outputname=(outputname.replace("“", ' '))
-    # outputname=re.sub("ELI5: ", "", outputname)
-    # outputname =re.sub("!", "", outputname)
-
-def audioconveter(text,i):
-    mytext = text
-    
-    language = 'en'
-    myobj = gTTS(text=mytext, lang=language, slow=False)
-    myobj.save("temp\\name"+str(i)+".mp3")
-    # except:
-    #     engine = pyttsx3.init('sapi5')
-    #     engine.save_to_file(mytext , "temp\\name"+str(i)+".mp3")
-    #     engine.runAndWait()
-
-def order(text,kgf):
-    global mk
-    mary = text
-    mk=[]
-    kk=0
-    ma=mary.split() 
-    mx=len(ma)
+def vedios(videoOutputName):
+    clip = VideoFileClip(backgroundVideo)
+    length = clip.duration
     while True:
-        if mx%4 == 0:
+        # Generate a random floating-point number between 1.0 and 10.0
+        random_number = random.uniform(10.0, length)
+        # Print the generated random number
+        random_number_end = random_number+endtime
+        print(1)
+        if random_number_end <= length:
+            print(random_number)
+            print(random_number_end)
             break
-        else:
-            ma.append(" ")
-            mx=len(ma)
-    cals=int(mx/4)
-    for i in trange(cals):
-        z=ma[kk]+" "+ma[kk+1]+" "+ma[kk+2] +" "+ma[kk+3] +"\n"
-        kk=kk+4
-        mk.append(z)
-    addedline[kgf]=mk
-    #print(addedline)
-    subanswer(kgf)
 
-def subanswer(i):
-    global texttemp
-    file1 = open("temp\\"+"a"+str(i)+".txt", "w")
-    file1.writelines(addedline[i])
-    file1.close()
+    # Create a new video clip with a black background
+    videos = ColorClip(size=(1080, 1920), color=(
+        0, 0, 0)).set_duration(endtime)
+    video = VideoFileClip(backgroundVideo).subclip(
+        random_number, random_number_end).set_duration(endtime).set_pos("center")
+    image_clip = ImageClip("bg.png").set_duration(endtime)
+    video = video.resize(2.0)
+    # Create a TextClip with the text that you want to overlay on the video
+    raw = [videos, video, image_clip, TextClip(
+        "r/"+subreddit_name, fontsize=40, font="Malgun-Gothic-Bold", color='white').set_pos((50, 70)).set_start(0).set_end(endtime)]
+    for i in txt_clip:
+        raw.append(i)
+    rawaudio = []
+    for i in audioclipname:
+        rawaudio.append(AudioFileClip(i))
+    combainaudio = concatenate_audioclips(rawaudio)
+    combainaudio.write_audiofile("combainaudio.mp3")
+    # Overlay the text clip on the video
+    final_clip = CompositeVideoClip(raw)
 
-def color_clip(size, duration, fps=25, color=(0, 0, 0)):
-    global clip
-    clip = ColorClip(size, color, duration=duration)
-
-def audiotime():
-    for i in cliptime:
-        audiotime=audiotime+cliptime[i]
-    #print(audiotime)
+    # Save the video clip to a file
+    final_clip.write_videofile(
+        videoOutputName+".mp4", fps=24, audio="combainaudio.mp3")
 
 
+def reddit_api(subreddit_name, num_posts):
+    # Create an instance of the Reddit API
+    reddit = praw.Reddit(client_id=user,
+                         client_secret=password,
+                         user_agent=host)
 
-def videoz():
-    global cliptime,rawtext,kim,mk,texttemp,addedline
-    for i in trange(len(cliptime)-1):
-        m=i+1
-        cliptime[m]=cliptime[i]+cliptime[m]
-        #print(cliptime[i])
-    audioTime=cliptime[len(cliptime)-1]
-    #print(audioTime)
-    for i in trange(len(addedline)):
-        with open("temp\\"+"a"+str(i)+".txt") as f:
-         endtext[i] = f.read()
-    
-    #print(endtext)
-    size = (1080, 1920)
-    duration = audioTime
-    color_clip(size, duration)
-    global subredditTep
-    jip = "r/"+subredditTep
-    txt0_clip = TextClip(jip, fontsize=40, color='white')
-    txt0_clip = txt0_clip.set_pos((0.1, 0.1), relative=True).set_duration(duration)
-    generator = lambda txt: TextClip(txt, font='Arial', fontsize=40, color='white')
-    subs = [((0, cliptime[0]), endtext[0])]
-    #print(addedline)
-    for i in trange(int(len(addedline)-1)):
-        m=i+1
-        #print(i)
-        subs.append(((cliptime[i],cliptime[m]), endtext[m]))
-        #print(subs)
-    #print("pass")
-    #print(subs)
-    subtitles = SubtitlesClip(subs, generator)
-    video = CompositeVideoClip(
-        [clip,txt0_clip, subtitles.set_pos(('center'))])
-    cam=[]
-    for i in trange(len(addedline)):
-        cam.append(AudioFileClip('temp\\'+"name"+str(i)+".mp3"))
-    #print(cam)
-    rawtext={}
-    mk={}
-    texttemp={}
-    cliptime = {}
-    addedline={}
-    fin=concatenate_audioclips(cam)
-    fin.write_audiofile("ouut.mp3")
-    
-    #print(rawtext)
-    #print(mk)
-    try:
-        video.write_videofile("result\\"+str(outputname)+
-                            ".mp4",threads=4, fps=25, audio="ouut.mp3")
-    except:
-        print(outputname+"Error")
-    kim=kim+1
-    
-def uploadfile():
-    global c
-    global a
+    subreddit = reddit.subreddit(subreddit_name)
+    posts = subreddit.top(time_filter="day", limit=num_posts)
 
-    # Get the list of all files and directories
-    path = r"C:\Users\Administrator\Desktop\1PyVideoCreateBot\result"
-    dir_list = os.listdir(path)
-    
-    print("Files and directories in '", path, "' :")
-    
-    # prints all files
-    print(dir_list)
+    # Use a list to store the dictionaries for each post
+    post_data = []
+
+    # Print the title and score of each post
+    for i, post in enumerate(posts):
+        # Create a dictionary for the current post
+        post_dict = {
+            "title": post.title,
+            "post_score": post.score,
+            "post_username": str(post.author),
+            "comments": [],
+            "comment_scores": [],
+            "comment_usernames": []
+        }
+
+        # Extract the data from the post's comments
+        comments = post.comments[:5]
+        for comment in comments:
+            post_dict["comments"].append(comment.body)
+            post_dict["comment_scores"].append(comment.score)
+            post_dict["comment_usernames"].append(str(comment.author))
+
+        # Add the post dictionary to the list of post dictionaries
+        post_data.append(post_dict)
+
+        progress = (i + 1) / num_posts * 100
+        print(f"\rProgress: {progress:.1f}%", end="")
+
+    return post_data
 
 
-    path = (os.path.dirname(os.path.abspath(__file__)))
-    path=path.capitalize()
-    path=(path.replace('\\', '\\\\'))
-    path=(path+"\\\\")
-    print (path)
-    c=0
-    def kar(img):
-                a=0
-                addval=((path)+str(img))
-                while a<1:
-                    try:
-                        x,y = pyautogui.locateCenterOnScreen(addval,confidence=0.8,grayscale=True)
-                        pyautogui.click(x,y)
-                        #print(x,y)
-                        a=30
-                    except:
-                            #print("**image name** |"+str(img)+ "| **No of Try** |" +str(a)+"|")
-                            a=a+1
-                    else:
-                        a=a+1
-                        #print ("succes "+str(img))
-                        return str(img)
-
-    file = glob.glob("*.PNG")
-    numberinc=0
+def write_json(data, filename):
+    with open(filename + ".json", "w") as file:
+        # Use json.dumps to encode the dictionary as a JSON string
+        json_string = json.dumps(data)
+        # Write the JSON string to the file
+        file.write(json_string)
 
 
-    webbrowser.open('https://studio.youtube.com/')
+def read_json(filename):
+    with open(filename + ".json", "r") as file:
+        # Read the JSON string from the file
+        json_string = file.read()
+        # Use json.loads to decode the JSON string and recreate the dictionary
+        data = json.loads(json_string)
+        return data
 
-    while True:
-            for i in file:
-                value=kar(i)
-                if value=="fiel.PNG":
-                    locs="C:\\Users\\Administrator\\Desktop\\1PyVideoCreateBot\\result"+("\\")+str(dir_list[numberinc])
-                    print(locs)
-                    pyautogui.write(locs)
-                    numberinc=numberinc+1
-                elif len(dir_list)==numberinc:
-                    if value =="4.PNG":
-                        break
-                    
-            pyautogui.scroll(-100)
-def vidaudcon():
-    global mk,rawtext,texttemp,cliptime,addedline,cam,posts
-    for j in trange(20):
-        try:
-            textdived(readfile(j, 1))
-            textdived(readfile(j, 9))
-            textdived(readfile(j, 10))
-            textdived(readfile(j, 11))
-            textdived(readfile(j, 12))
 
-            for i in rawtext:
-                audioconveter(rawtext[i],i)
-                order(rawtext[i],i)
-                ten = librosa.get_duration(filename="temp\\name"+str(i)+".mp3")
-                cliptime[i] = ten
-            videoz()
-            print("__SUCCESS"+str(j))
-            logger.error("done "+str(j))
-        except:
-            print("err")
-            rawtext={}
-            mk={}
-            texttemp={}
-            cliptime = {}
-            addedline={}
-            cam=[]
-            posts = []
-redditpull()
-vidaudcon()
-uploadfile()
+# Set the text to be converted to speech
+# Convert the text to speech and save the output to an MP3 file
+def tta(inputText, outputname):
+    language = "en"
+    tts = gTTS(text=inputText, lang=language, slow=False)
+    filenames = str(outputname)+".mp3"
+    tts.save(filenames)
+    duration = librosa.get_duration(filename=filenames)
+    audioclipname.append(filenames)
+    return (duration)
+
+
+def aavc(content, username, postscore):
+    global starttimes, endtime
+    starttimes = endtime
+    endtime = tta(content, endtime)+starttimes
+    videoprep(content, starttimes, endtime, 'center')
+    videoprep(username, starttimes, endtime, (100, 200))
+    videoprep(postscore, starttimes, endtime, (100, 1700))
+
+def cleanup():
+    # Use the __file__ variable to get the path of the current script
+    script_path = __file__
+
+    # Use the os.path.dirname function to get the parent directory of the script
+    script_dir = os.path.dirname(script_path)
+    folder_path = script_dir
+
+    # Define the path to the folder
+
+    # Use the os.listdir function to get a list of files in the folder
+    files = os.listdir(folder_path)
+
+    # Use a for loop to iterate over the files
+    for file in files:
+        # Use the os.path.splitext function to split the file name and extension
+        name, ext = os.path.splitext(file)
+
+        # If the file has a .mp3 or .txt extension, delete it
+        if ext == ".mp3" or ext == ".txt":
+            os.remove(os.path.join(folder_path, file))
+
+
+# Use the functions to retrieve data from Reddit and write it to a JSON file
+subreddit_name = input("Subreddit (Default [AskReddit]) :- ")or "AskReddit"
+num_posts = input("Number Of Post (Default [30]) :- ")or 30
+backgroundVideo=input("backgroundVideo Name (Default [bg.mp4]) :- ") or "bg.mp4"
+data = reddit_api(subreddit_name, int(num_posts))
+write_json(data, "reddit_data")
+
+# Read the data back from the JSON file
+data = read_json("reddit_data")
+start = time.time()
+print("\nstart")
+for j in range(len(data)):
+    aavc(data[j]["title"], "u/"+data[j]["post_username"],
+         "^ " + str(data[j]["post_score"]))
+    for i in range(len(data[j]["comments"])):
+        aavc(data[j]["comments"][i], "u/"+data[j]["comment_usernames"]
+             [i], "^ "+str(data[j]["comment_scores"][i]))
+    title = re.sub(r"[^\w\s]", "", data[j]["title"])
+    vedios(title)
+    txt_clip = []
+    endtime = 0
+    audioclipname = []
+end = time.time()
+end = end-start
+print(end)
+cleanup()
+input("PRESS ENTER")
